@@ -29,6 +29,9 @@ repositories {
 // Dependencies
 dependencies {
     compile 'com.badlogicgames.gdx:gdx'
+    compile 'com.badlogicgames.gdx:gdx-backend-lwjgl'
+    runtime 'com.badlogicgames.gdx:gdx-natives'
+    runtime 'com.badlogicgames.gdx:gdx-backend-lwjgl-natives'
 }
 
 // Get dependencies to make Eclipse happy
