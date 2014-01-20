@@ -10,19 +10,17 @@ import com.martinandrewhabich.scene.DropScene;
 /**
  * Application.java
  * 
+ * Application bootstrap.
+ * 
  * @author Martin
  */
 public class Application {
 
-  private static final String SCREEN_TITLE = "Drop";
-  private static final int SCREEN_WIDTH = 800;
-  private static final int SCREEN_HEIGHT = 480;
-
   public static void main(String[] args) {
     LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
-    cfg.title = SCREEN_TITLE;
-    cfg.width = SCREEN_WIDTH;
-    cfg.height = SCREEN_HEIGHT;
+    cfg.title = GlobalConfig.SCREEN_TITLE;
+    cfg.width = GlobalConfig.SCREEN_WIDTH;
+    cfg.height = GlobalConfig.SCREEN_HEIGHT;
     new LwjglApplication(new DropScene(), cfg);
     System.out.println("hello world.");
   }

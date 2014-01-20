@@ -34,6 +34,15 @@ dependencies {
     runtime 'com.badlogicgames.gdx:gdx-backend-lwjgl-natives'
 }
 
+resourceHome = 'src/main/resources/assets/'
+
+sourceSets {
+    main {
+        java { srcDirs = [ 'src' ] }
+        resources { srcDirs = [resourceHome + 'textures', resourceHome + 'sounds'] }
+    }
+}
+
 // Get dependencies to make Eclipse happy
 eclipse {
 	classpath {

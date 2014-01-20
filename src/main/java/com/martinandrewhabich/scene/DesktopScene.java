@@ -17,7 +17,6 @@ abstract class DesktopScene implements ApplicationListener {
   @Override
   public final void pause() {
     // Ignoring Android-specific event handler
-    System.out.println("meow");
   }
 
   @Override
