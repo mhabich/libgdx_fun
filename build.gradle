@@ -1,0 +1,44 @@
+// Plug-ins
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+// Java properties
+sourceCompatibility = 1.7
+
+// Manifest properties
+title = 'libgdx_fun'
+version = '1.0'
+mainClass = 'com.martinandrewhabich.Application'
+
+// application.distZip task property
+mainClassName = mainClass
+
+// JAR
+jar {
+    manifest {
+        attributes 'Implementation-Title': title, 'Implementation-Version': version, 'Main-Class': mainClass
+    }
+}
+
+// Repositories
+repositories {
+  flatDir name: 'localRepository', dirs: 'lib'
+}
+
+// Dependencies
+dependencies {
+    compile 'com.badlogicgames.gdx:gdx'
+}
+
+// Get dependencies to make Eclipse happy
+eclipse {
+	classpath {
+	   downloadSources=true
+	}
+}
+
+test {
+	// Show standard out and standard error of the test JVM(s) on the console
+	testLogging.showStandardStreams = true
+}
