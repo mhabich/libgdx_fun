@@ -3,15 +3,28 @@
  */
 package com.martinandrewhabich.scene;
 
+import static com.martinandrewhabich.GlobalConfig.BUCKET_KEYBOARD_SPEED;
+import static com.martinandrewhabich.GlobalConfig.BUCKET_Y_POS;
+import static com.martinandrewhabich.GlobalConfig.IMAGE_HEIGHT;
+import static com.martinandrewhabich.GlobalConfig.IMAGE_WIDTH;
+import static com.martinandrewhabich.GlobalConfig.SCREEN_HEIGHT;
+import static com.martinandrewhabich.GlobalConfig.SCREEN_WIDTH;
+
+import java.util.Iterator;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.martinandrewhabich.DependencyBlob;
 import com.martinandrewhabich.GlobalConfig;
 import com.martinandrewhabich.sound.AudioFactory;
@@ -38,6 +51,9 @@ public class DropScene extends DesktopScene {
   SpriteBatch batch;
 
   Rectangle bucket;
+  Array<Rectangle> raindrops;
+
+  long lastDropTime;
 
   @Override
   public void create() {
@@ -50,19 +66,22 @@ public class DropScene extends DesktopScene {
     rainMusic.play();
 
     camera = new OrthographicCamera();
-    camera.setToOrtho(false, GlobalConfig.SCREEN_WIDTH, GlobalConfig.SCREEN_HEIGHT);
+    camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
     batch = new SpriteBatch();
 
     bucket = new Rectangle();
-    bucket.x = GlobalConfig.SCREEN_WIDTH * 0.5F - GlobalConfig.BUCKET_WIDTH * 0.5F;
-    bucket.y = GlobalConfig.BUCKET_Y_POS;
-    bucket.width = GlobalConfig.BUCKET_WIDTH;
-    bucket.height = GlobalConfig.BUCKET_HEIGHT;
+    bucket.x = SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F;
+    bucket.y = BUCKET_Y_POS;
+    bucket.width = IMAGE_WIDTH;
+    bucket.height = IMAGE_HEIGHT;
+
+    raindrops = new Array<Rectangle>();
+    spawnRaindrop();
   }
 
   @Override
   public void resize(int width, int height) {
-    // TODO Auto-generated method stub
+    // INTENTIONALLY BLANK
   }
 
   @Override
@@ -79,19 +98,68 @@ public class DropScene extends DesktopScene {
     batch.setProjectionMatrix(camera.combined);
     batch.begin();
     batch.draw(bucketImage, bucket.x, bucket.y);
+    for (Rectangle raindrop : raindrops) {
+      batch.draw(dropImage, raindrop.x, raindrop.y);
+    }
     batch.end();
 
     if (Gdx.input.isTouched()) {
       Vector3 touchPos = new Vector3();
       touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
       camera.unproject(touchPos);
-      bucket.x = touchPos.x - GlobalConfig.BUCKET_WIDTH / 2;
+      bucket.x = touchPos.x - IMAGE_WIDTH / 2;
     }
+
+    if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+      bucket.x -= BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime();
+    } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+      bucket.x += BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime();
+    }
+
+    if (bucket.x < 0) {
+      bucket.x = 0;
+    } else if (bucket.x > getImageRightBound()) {
+      bucket.x = getImageRightBound();
+    }
+
+    if (TimeUtils.nanoTime() - lastDropTime > GlobalConfig.RAINDROP_INTERVAL_NANOSECONDS) {
+      spawnRaindrop();
+    }
+
+    Iterator<Rectangle> iter = raindrops.iterator();
+    while (iter.hasNext()) {
+      Rectangle raindrop = iter.next();
+      raindrop.y -= GlobalConfig.RAINDROP_SPEED * Gdx.graphics.getDeltaTime();
+      if (raindrop.overlaps(bucket)) {
+        dropSound.play();
+        iter.remove();
+      } else if (raindrop.y + IMAGE_HEIGHT < 0) {
+        iter.remove();
+      }
+    }
+  }
+
+  private void spawnRaindrop() {
+    Rectangle raindrop = new Rectangle();
+    raindrop.x = MathUtils.random(0, getImageRightBound());
+    raindrop.y = SCREEN_HEIGHT;
+    raindrop.width = IMAGE_WIDTH;
+    raindrop.height = IMAGE_HEIGHT;
+    raindrops.add(raindrop);
+    lastDropTime = TimeUtils.nanoTime();
+  }
+
+  /**
+   * The max x-position that an image can reside at without going off the right edge of the
+   * projection matrix.
+   */
+  private static int getImageRightBound() {
+    return SCREEN_WIDTH - IMAGE_WIDTH;
   }
 
   @Override
   public void dispose() {
-    // TODO Auto-generated method stub
+    // INTENTIONALLY BLANK
   }
 
 }

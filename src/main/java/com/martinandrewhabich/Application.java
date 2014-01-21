@@ -22,7 +22,6 @@ public class Application {
     cfg.width = GlobalConfig.SCREEN_WIDTH;
     cfg.height = GlobalConfig.SCREEN_HEIGHT;
     new LwjglApplication(new DropScene(), cfg);
-    System.out.println("hello world.");
   }
 
 }
