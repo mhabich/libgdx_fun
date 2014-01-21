@@ -1,14 +1,16 @@
 /**
  * Copyright (c) Martin Andrew Habich, 2014
  */
-package com.martinandrewhabich;
+package game.drop;
+
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 /**
  * ShamelessGlobalConfig.java
  * 
  * @author Martin
  */
-public class GlobalConfig {
+public class Globs {
 
   public static final String SCREEN_TITLE = "Drop";
   public static final int SCREEN_WIDTH = 800;
@@ -22,5 +24,13 @@ public class GlobalConfig {
 
   public static int RAINDROP_INTERVAL_NANOSECONDS = 1000000000;
   public static int RAINDROP_SPEED = 200;
+
+  public static LwjglApplicationConfiguration getLwjglAppConfig() {
+    LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+    cfg.title = Globs.SCREEN_TITLE;
+    cfg.width = Globs.SCREEN_WIDTH;
+    cfg.height = Globs.SCREEN_HEIGHT;
+    return cfg;
+  }
 
 }

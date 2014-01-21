@@ -9,7 +9,7 @@ sourceCompatibility = 1.7
 // Manifest properties
 title = 'libgdx_fun'
 version = '1.0'
-mainClass = 'com.martinandrewhabich.Application'
+mainClass = 'game.drop.Application'
 
 // application.distZip task property
 mainClassName = mainClass

@@ -1,17 +1,20 @@
 /**
  * Copyright (c) Martin Andrew Habich, 2014
  */
-package com.martinandrewhabich.scene;
+package game.drop.screens;
 
-import static com.martinandrewhabich.GlobalConfig.BUCKET_KEYBOARD_SPEED;
-import static com.martinandrewhabich.GlobalConfig.BUCKET_Y_POS;
-import static com.martinandrewhabich.GlobalConfig.IMAGE_HEIGHT;
-import static com.martinandrewhabich.GlobalConfig.IMAGE_WIDTH;
-import static com.martinandrewhabich.GlobalConfig.SCREEN_HEIGHT;
-import static com.martinandrewhabich.GlobalConfig.SCREEN_WIDTH;
+import static game.drop.Globs.BUCKET_KEYBOARD_SPEED;
+import static game.drop.Globs.BUCKET_Y_POS;
+import static game.drop.Globs.IMAGE_HEIGHT;
+import static game.drop.Globs.IMAGE_WIDTH;
+import static game.drop.Globs.SCREEN_HEIGHT;
+import static game.drop.Globs.SCREEN_WIDTH;
+import game.drop.Blobs;
+import game.drop.Globs;
 
 import java.util.Iterator;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
@@ -25,11 +28,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.martinandrewhabich.DependencyBlob;
-import com.martinandrewhabich.GlobalConfig;
-import com.martinandrewhabich.sound.AudioFactory;
+import com.martinandrewhabich.screen.DesktopScreen;
 import com.martinandrewhabich.sound.AudioFileType;
-import com.martinandrewhabich.texture.TextureFactory;
 import com.martinandrewhabich.texture.TextureFileType;
 
 /**
@@ -37,10 +37,7 @@ import com.martinandrewhabich.texture.TextureFileType;
  * 
  * @author Martin
  */
-public class DropScene extends DesktopScene {
-
-  private TextureFactory textureFactory = DependencyBlob.getTextureFactory();
-  private AudioFactory audioFactory = DependencyBlob.getAudioFactory();
+public class DropScreen extends DesktopScreen {
 
   private Texture dropImage;
   private Texture bucketImage;
@@ -55,13 +52,17 @@ public class DropScene extends DesktopScene {
 
   long lastDropTime;
 
-  @Override
-  public void create() {
-    dropImage = textureFactory.makeTexture("drop", TextureFileType.PNG);
-    bucketImage = textureFactory.makeTexture("bucket", TextureFileType.PNG);
+  public DropScreen(Game game) {
+    super(game);
+  }
 
-    dropSound = audioFactory.makeSound("drop", AudioFileType.WAV);
-    rainMusic = audioFactory.makeMusic("rain", AudioFileType.MP3);
+  @Override
+  public void show() {
+    dropImage = Blobs.textureFactory.makeTexture("drop", TextureFileType.PNG);
+    bucketImage = Blobs.textureFactory.makeTexture("bucket", TextureFileType.PNG);
+
+    dropSound = Blobs.audioFactory.makeSound("drop", AudioFileType.WAV);
+    rainMusic = Blobs.audioFactory.makeMusic("rain", AudioFileType.MP3);
     rainMusic.setLooping(true);
     rainMusic.play();
 
@@ -81,11 +82,11 @@ public class DropScene extends DesktopScene {
 
   @Override
   public void resize(int width, int height) {
-    // INTENTIONALLY BLANK
+    // Intentionally blank...
   }
 
   @Override
-  public void render() {
+  public void render(float delta) {
     Gdx.gl.glClearColor(0, 0.1F, 0.2F, 1);
     Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
@@ -122,14 +123,14 @@ public class DropScene extends DesktopScene {
       bucket.x = getImageRightBound();
     }
 
-    if (TimeUtils.nanoTime() - lastDropTime > GlobalConfig.RAINDROP_INTERVAL_NANOSECONDS) {
+    if (TimeUtils.nanoTime() - lastDropTime > Globs.RAINDROP_INTERVAL_NANOSECONDS) {
       spawnRaindrop();
     }
 
     Iterator<Rectangle> iter = raindrops.iterator();
     while (iter.hasNext()) {
       Rectangle raindrop = iter.next();
-      raindrop.y -= GlobalConfig.RAINDROP_SPEED * Gdx.graphics.getDeltaTime();
+      raindrop.y -= Globs.RAINDROP_SPEED * Gdx.graphics.getDeltaTime();
       if (raindrop.overlaps(bucket)) {
         dropSound.play();
         iter.remove();
@@ -164,6 +165,11 @@ public class DropScene extends DesktopScene {
     dropSound.dispose();
     rainMusic.dispose();
     batch.dispose();
+  }
+
+  @Override
+  public void hide() {
+    // Intentionally blank..
   }
 
 }
