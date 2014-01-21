@@ -159,7 +159,11 @@ public class DropScene extends DesktopScene {
 
   @Override
   public void dispose() {
-    // INTENTIONALLY BLANK
+    dropImage.dispose();
+    bucketImage.dispose();
+    dropSound.dispose();
+    rainMusic.dispose();
+    batch.dispose();
   }
 
 }
