@@ -17,7 +17,7 @@ public class Application {
 
   public static void main(String[] args) {
     Game game = new DropGame();
-    new LwjglApplication(game, Globs.getLwjglAppConfig());
+    new LwjglApplication(game, Globs.LWJGL_APP_CONFIG);
   }
 
 }

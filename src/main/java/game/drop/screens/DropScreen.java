@@ -22,7 +22,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -45,7 +44,6 @@ public class DropScreen extends DesktopScreen {
   private Music rainMusic;
 
   OrthographicCamera camera;
-  SpriteBatch batch;
 
   Rectangle bucket;
   Array<Rectangle> raindrops;
@@ -54,21 +52,15 @@ public class DropScreen extends DesktopScreen {
 
   public DropScreen(Game game) {
     super(game);
-  }
-
-  @Override
-  public void show() {
     dropImage = Blobs.textureFactory.makeTexture("drop", TextureFileType.PNG);
     bucketImage = Blobs.textureFactory.makeTexture("bucket", TextureFileType.PNG);
 
     dropSound = Blobs.audioFactory.makeSound("drop", AudioFileType.WAV);
     rainMusic = Blobs.audioFactory.makeMusic("rain", AudioFileType.MP3);
     rainMusic.setLooping(true);
-    rainMusic.play();
 
     camera = new OrthographicCamera();
     camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
-    batch = new SpriteBatch();
 
     bucket = new Rectangle();
     bucket.x = SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F;
@@ -78,6 +70,11 @@ public class DropScreen extends DesktopScreen {
 
     raindrops = new Array<Rectangle>();
     spawnRaindrop();
+  }
+
+  @Override
+  public void show() {
+    rainMusic.play();
   }
 
   @Override
@@ -96,13 +93,13 @@ public class DropScreen extends DesktopScreen {
     // generally a good practice to update the camera once per frame.
     camera.update();
 
-    batch.setProjectionMatrix(camera.combined);
-    batch.begin();
-    batch.draw(bucketImage, bucket.x, bucket.y);
+    Blobs.spriteBatch.setProjectionMatrix(camera.combined);
+    Blobs.spriteBatch.begin();
+    Blobs.spriteBatch.draw(bucketImage, bucket.x, bucket.y);
     for (Rectangle raindrop : raindrops) {
-      batch.draw(dropImage, raindrop.x, raindrop.y);
+      Blobs.spriteBatch.draw(dropImage, raindrop.x, raindrop.y);
     }
-    batch.end();
+    Blobs.spriteBatch.end();
 
     if (Gdx.input.isTouched()) {
       Vector3 touchPos = new Vector3();
@@ -164,7 +161,6 @@ public class DropScreen extends DesktopScreen {
     bucketImage.dispose();
     dropSound.dispose();
     rainMusic.dispose();
-    batch.dispose();
   }
 
   @Override

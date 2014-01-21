@@ -25,7 +25,9 @@ public class Globs {
   public static int RAINDROP_INTERVAL_NANOSECONDS = 1000000000;
   public static int RAINDROP_SPEED = 200;
 
-  public static LwjglApplicationConfiguration getLwjglAppConfig() {
+  public static LwjglApplicationConfiguration LWJGL_APP_CONFIG = getLwjglAppConfig();
+
+  private static LwjglApplicationConfiguration getLwjglAppConfig() {
     LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
     cfg.title = Globs.SCREEN_TITLE;
     cfg.width = Globs.SCREEN_WIDTH;
