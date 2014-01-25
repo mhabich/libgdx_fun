@@ -6,6 +6,7 @@ package game.drop.screens;
 import static com.martinandrewhabich.uglyglobals.Blobs.textureFactory;
 import static game.drop.Globs.SCREEN_HEIGHT;
 import static game.drop.Globs.SCREEN_WIDTH;
+import game.drop.Globs;
 
 import java.util.ArrayList;
 
@@ -75,11 +76,15 @@ public class PlatformScreen extends DesktopScreen {
   @Override
   public void update(float delta) {
     player.update(delta);
-    RenderUtil.renderSprites(camera, background, floor, player);
-    for (FontObject credit : credits) {
-      credit.setY(credit.getY() + 30 * delta);
+    RenderUtil.renderSprites(camera, background, floor);
+    for (int index = credits.size() - 1; index >= 0; index--) {
+      credits.get(index).setY(credits.get(index).getY() + Globs.CREDIT_SPEED * delta);
+      if (credits.get(index).getY() > SCREEN_HEIGHT + 50) {
+        credits.remove(index);
+      }
     }
-    RenderUtil.renderFonts(camera, credits.toArray(new FontObject[25]));
+    RenderUtil.renderFonts(camera, credits.toArray(new FontObject[20]));
+    RenderUtil.renderSprites(camera, player);
   }
 
   @Override

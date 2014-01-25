@@ -9,6 +9,7 @@ import static game.drop.Globs.DEFAULT_IMAGE_HEIGHT;
 import static game.drop.Globs.DEFAULT_IMAGE_WIDTH;
 import static game.drop.Globs.SCREEN_HEIGHT;
 import static game.drop.Globs.SCREEN_WIDTH;
+import game.drop.Globs;
 
 import java.util.Iterator;
 
@@ -146,7 +147,7 @@ public class DropScreen extends DesktopScreen {
         iter.remove();
         totalDropsCaught += 1;
         totalDropsSpawned += 1;
-        if (totalDropsCaught > 15) {
+        if (totalDropsCaught > Globs.NUMBER_OF_DROPS_TO_WIN) {
           game.setScreen(new PlatformScreen(game));
           dispose();
         }
