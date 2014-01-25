@@ -20,10 +20,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -99,11 +96,6 @@ public class DropScreen extends DesktopScreen {
     makeSureBucketIsStillOnTheScreen();
     updateRainDropPositions();
     spawnRainDropIfNecessary();
-
-    World world = new World(new Vector2(0, -10), true);
-    Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
-    world.step(1 / 60F, 6, 2);
-    debugRenderer.render(world, camera.combined);
   }
 
   private void pollInput() {
