@@ -46,7 +46,7 @@ public class PlatformScreen extends DesktopScreen {
 
   ArrayList<FontObject> credits = new ArrayList<FontObject>();
 
-  World world = new World(new Vector2(0, -30), true);
+  World world = new World(new Vector2(0, -50), true);
   Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
 
   RectangularPhysicsBody floorBody;
@@ -130,7 +130,7 @@ public class PlatformScreen extends DesktopScreen {
     // It is recommended that you render all your graphics before you do your physics step,
     // otherwise it will be out of sync.
     debugRenderer.render(world, camera.combined);
-    world.step(1 / 30F, 6, 2);
+    world.step(1 / 30F, 1, 1);
   }
 
   private void pollInput() {
@@ -139,17 +139,17 @@ public class PlatformScreen extends DesktopScreen {
 
     // Apply left impulse, but only if max velocity is not reached yet.
     if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-      playerBody.body.setLinearVelocity(-150F, vel.y);
+      playerBody.body.applyForceToCenter(-10000F, 0F, true);
     }
 
     // Apply right impulse, but only if max velocity is not reached yet.
     if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      playerBody.body.setLinearVelocity(150F, vel.y);
+      playerBody.body.applyForceToCenter(10000F, 0F, true);
     }
 
     // Jump! Apply upward impulse if not already moving.
-    if (Gdx.input.isKeyPressed(Keys.SPACE) && vel.y < 2) {
-      playerBody.body.setLinearVelocity(0F, 6000F);
+    if (Gdx.input.isKeyPressed(Keys.SPACE) && Math.abs(vel.y) < 2) {
+      playerBody.body.applyForceToCenter(0F, 10000000000F, true);
     }
   }
 
