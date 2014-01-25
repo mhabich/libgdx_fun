@@ -23,6 +23,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.martinandrewhabich.font.FontObject;
 import com.martinandrewhabich.rendering.RenderUtil;
 import com.martinandrewhabich.screen.DesktopScreen;
 import com.martinandrewhabich.sound.AudioFileType;
@@ -49,6 +50,9 @@ public class DropScreen extends DesktopScreen {
   private Sprite2D background;
   private Sprite2D bucket;
 
+  private int totalDropsSpawned = 0;
+  private int totalDropsCaught = 0;
+
   Pool<RainDrop> rainDropPool = new Pool<RainDrop>() {
     @Override
     protected RainDrop newObject() {
@@ -73,7 +77,7 @@ public class DropScreen extends DesktopScreen {
     bucket = new Sprite2D("bucket", SCREEN_WIDTH * 0.5F - DEFAULT_IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
         DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
     activeRainDrops = new Array<RainDrop>(RainDrop.class);
-    spawnRaindropIfNecessary();
+    spawnRainDropIfNecessary();
   }
 
   @Override
@@ -85,10 +89,12 @@ public class DropScreen extends DesktopScreen {
   public void update(float delta) {
     RenderUtil.renderSprites(camera, background, bucket);
     RenderUtil.renderSprites(camera, activeRainDrops.items);
+    RenderUtil.renderFonts(camera, new FontObject("Score: " + totalDropsCaught + " / "
+        + totalDropsSpawned, SCREEN_WIDTH - 115, SCREEN_HEIGHT - 15));
     pollInput();
     makeSureBucketIsStillOnTheScreen();
-    updateRaindropPositions();
-    spawnRaindropIfNecessary();
+    updateRainDropPositions();
+    spawnRainDropIfNecessary();
   }
 
   private void pollInput() {
@@ -113,26 +119,29 @@ public class DropScreen extends DesktopScreen {
     }
   }
 
-  private void spawnRaindropIfNecessary() {
+  private void spawnRainDropIfNecessary() {
     if (TimeUtils.nanoTime() - lastDropTime > RAINDROP_INTERVAL_NANOSECONDS) {
-      RainDrop raindrop = rainDropPool.obtain();
-      activeRainDrops.add(raindrop);
+      RainDrop rainDrop = rainDropPool.obtain();
+      activeRainDrops.add(rainDrop);
       lastDropTime = TimeUtils.nanoTime();
     }
   }
 
-  private void updateRaindropPositions() {
+  private void updateRainDropPositions() {
     Iterator<RainDrop> iter = activeRainDrops.iterator();
     while (iter.hasNext()) {
-      RainDrop raindrop = iter.next();
-      raindrop.translate(0, -1 * RAINDROP_SPEED * Gdx.graphics.getDeltaTime());
-      if (raindrop.getRectangle().overlaps(bucket.getRectangle())) {
+      RainDrop rainDrop = iter.next();
+      rainDrop.translate(0, -1 * RAINDROP_SPEED * Gdx.graphics.getDeltaTime());
+      if (rainDrop.getRectangle().overlaps(bucket.getRectangle())) {
         dropCaughtSound.play();
-        rainDropPool.free(raindrop);
+        rainDropPool.free(rainDrop);
         iter.remove();
-      } else if (raindrop.getY() + RainDrop.WIDTH < 0) {
-        rainDropPool.free(raindrop);
+        totalDropsCaught += 1;
+        totalDropsSpawned += 1;
+      } else if (rainDrop.getY() + RainDrop.WIDTH < 0) {
+        rainDropPool.free(rainDrop);
         iter.remove();
+        totalDropsSpawned += 1;
       }
     }
   }
