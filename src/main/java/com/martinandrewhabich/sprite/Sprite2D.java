@@ -52,8 +52,16 @@ public class Sprite2D {
     return rectangle.width;
   }
 
+  public void setWidth(float width) {
+    rectangle.width = width;
+  }
+
   public float getHeight() {
     return rectangle.height;
+  }
+
+  public void setHeight(float height) {
+    rectangle.height = height;
   }
 
   public void translate(float xTrans, float yTrans) {

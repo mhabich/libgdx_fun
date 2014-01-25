@@ -16,6 +16,9 @@ public class Globs {
   public static final int SCREEN_WIDTH = 800;
   public static final int SCREEN_HEIGHT = 480;
 
+  public static final int DEFAULT_IMAGE_WIDTH = 64;
+  public static final int DEFAULT_IMAGE_HEIGHT = 64;
+
   public static LwjglApplicationConfiguration LWJGL_APP_CONFIG = getLwjglAppConfig();
 
   private static LwjglApplicationConfiguration getLwjglAppConfig() {

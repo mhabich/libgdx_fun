@@ -5,6 +5,8 @@ package game.drop.screens;
 
 import static com.martinandrewhabich.uglyglobals.Blobs.audioFactory;
 import static com.martinandrewhabich.uglyglobals.Blobs.textureFactory;
+import static game.drop.Globs.DEFAULT_IMAGE_HEIGHT;
+import static game.drop.Globs.DEFAULT_IMAGE_WIDTH;
 import static game.drop.Globs.SCREEN_HEIGHT;
 import static game.drop.Globs.SCREEN_WIDTH;
 
@@ -19,6 +21,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.martinandrewhabich.rendering.RenderUtil;
 import com.martinandrewhabich.screen.DesktopScreen;
@@ -33,47 +36,55 @@ import com.martinandrewhabich.texture.TextureFileType;
  */
 public class DropScreen extends DesktopScreen {
 
-  private static final int DEFAULT_IMAGE_WIDTH = 64;
-  private static final int DEFAULT_IMAGE_HEIGHT = 64;
-
   private static final int BUCKET_Y_POS = 20;
   private static final int BUCKET_KEYBOARD_SPEED = 350;
 
   private static final int RAINDROP_INTERVAL_NANOSECONDS = 1000000000;
   private static final int RAINDROP_SPEED = 200;
 
-  private Texture dropImage;
-  private Sound dropSound;
-  private Music rainMusic;
+  private Texture rainDropImage;
+  private Sound dropCaughtSound;
+  private Music rainBackgroundMusic;
 
   private Sprite2D background;
   private Sprite2D bucket;
-  Array<Sprite2D> raindrops;
+
+  Pool<RainDrop> rainDropPool = new Pool<RainDrop>() {
+    @Override
+    protected RainDrop newObject() {
+      RainDrop rainDrop = new RainDrop( //
+          rainDropImage, //
+          MathUtils.random(0, Gdx.graphics.getWidth() - RainDrop.WIDTH), SCREEN_HEIGHT, //
+          DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
+      return rainDrop;
+    }
+  };
+  Array<RainDrop> activeRainDrops;
 
   long lastDropTime;
 
   public DropScreen(Game game) {
     super(game);
-    dropImage = textureFactory.makeTexture("drop", TextureFileType.PNG);
-    dropSound = audioFactory.makeSound("drop", AudioFileType.WAV);
-    rainMusic = audioFactory.makeMusic("rain", AudioFileType.MP3);
-    rainMusic.setLooping(true);
+    rainDropImage = textureFactory.makeTexture("drop", TextureFileType.PNG);
+    dropCaughtSound = audioFactory.makeSound("drop", AudioFileType.WAV);
+    rainBackgroundMusic = audioFactory.makeMusic("rain", AudioFileType.MP3);
+    rainBackgroundMusic.setLooping(true);
     background = new Sprite2D("splash_background", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     bucket = new Sprite2D("bucket", SCREEN_WIDTH * 0.5F - DEFAULT_IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
         DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
-    raindrops = new Array<Sprite2D>(Sprite2D.class);
+    activeRainDrops = new Array<RainDrop>(RainDrop.class);
     spawnRaindropIfNecessary();
   }
 
   @Override
   public void show() {
-    rainMusic.play();
+    rainBackgroundMusic.play();
   }
 
   @Override
   public void update(float delta) {
     RenderUtil.renderSprites(camera, background, bucket);
-    RenderUtil.renderSprites(camera, raindrops.items);
+    RenderUtil.renderSprites(camera, activeRainDrops.items);
     pollInput();
     makeSureBucketIsStillOnTheScreen();
     updateRaindropPositions();
@@ -97,48 +108,42 @@ public class DropScreen extends DesktopScreen {
     // Keep the bucket inside the bounds of the screen.
     if (bucket.getX() < 0) {
       bucket.setX(0);
-    } else if (bucket.getX() > getImageRightBound()) {
-      bucket.setX(getImageRightBound());
+    } else if (bucket.getX() > Gdx.graphics.getWidth() - DEFAULT_IMAGE_WIDTH) {
+      bucket.setX(Gdx.graphics.getWidth() - DEFAULT_IMAGE_WIDTH);
     }
   }
 
   private void spawnRaindropIfNecessary() {
     if (TimeUtils.nanoTime() - lastDropTime > RAINDROP_INTERVAL_NANOSECONDS) {
-      Sprite2D raindrop = new Sprite2D(dropImage, MathUtils.random(0, getImageRightBound()),
-          SCREEN_HEIGHT, DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
-      raindrops.add(raindrop);
+      RainDrop raindrop = rainDropPool.obtain();
+      activeRainDrops.add(raindrop);
       lastDropTime = TimeUtils.nanoTime();
     }
   }
 
   private void updateRaindropPositions() {
-    Iterator<Sprite2D> iter = raindrops.iterator();
+    Iterator<RainDrop> iter = activeRainDrops.iterator();
     while (iter.hasNext()) {
-      Sprite2D raindrop = iter.next();
+      RainDrop raindrop = iter.next();
       raindrop.translate(0, -1 * RAINDROP_SPEED * Gdx.graphics.getDeltaTime());
       if (raindrop.getRectangle().overlaps(bucket.getRectangle())) {
-        dropSound.play();
+        dropCaughtSound.play();
+        rainDropPool.free(raindrop);
         iter.remove();
-      } else if (raindrop.getY() + DEFAULT_IMAGE_HEIGHT < 0) {
+      } else if (raindrop.getY() + RainDrop.WIDTH < 0) {
+        rainDropPool.free(raindrop);
         iter.remove();
       }
     }
   }
 
-  /**
-   * The max x-position that an image can reside at without going off the right edge of the
-   * projection matrix.
-   */
-  private static int getImageRightBound() {
-    return SCREEN_WIDTH - DEFAULT_IMAGE_WIDTH;
-  }
-
   @Override
   public void dispose() {
-    // TODO - move this to a resource manager at some point
-    dropImage.dispose();
-    dropSound.dispose();
-    rainMusic.dispose();
+    // TODO - move this to a resource manager at some point (i.e. libgdx's AssetManager class)
+    rainDropImage.dispose();
+    dropCaughtSound.dispose();
+    rainBackgroundMusic.dispose();
+    bucket.getTexture().dispose();
   }
 
   @Override
