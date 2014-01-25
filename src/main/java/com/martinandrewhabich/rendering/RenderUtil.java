@@ -3,9 +3,11 @@
  */
 package com.martinandrewhabich.rendering;
 
+import static game.drop.Blobs.bitmapFont;
 import static game.drop.Blobs.spriteBatch;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.martinandrewhabich.font.FontObject;
 import com.martinandrewhabich.sprite.Sprite2D;
 
 /**
@@ -23,8 +25,17 @@ public class RenderUtil {
         spriteBatch.draw( //
             sprite.getTexture(), //
             sprite.getX(), sprite.getY(), //
-            sprite.getHeight(), sprite.getWidth());
+            sprite.getWidth(), sprite.getHeight());
       }
+    }
+    spriteBatch.end();
+  }
+
+  public static void renderFonts(Camera camera, FontObject... fontObjects) {
+    spriteBatch.setProjectionMatrix(camera.combined);
+    spriteBatch.begin();
+    for (FontObject font : fontObjects) {
+      bitmapFont.draw(spriteBatch, font.getText(), font.getX(), font.getY());
     }
     spriteBatch.end();
   }

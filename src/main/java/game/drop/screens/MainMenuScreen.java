@@ -3,12 +3,11 @@
  */
 package game.drop.screens;
 
-import static game.drop.Blobs.bitmapFont;
-import static game.drop.Blobs.spriteBatch;
 import game.drop.Globs;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.martinandrewhabich.font.FontObject;
 import com.martinandrewhabich.rendering.RenderUtil;
 import com.martinandrewhabich.screen.DesktopScreen;
 import com.martinandrewhabich.sprite.Sprite2D;
@@ -35,7 +34,9 @@ public class MainMenuScreen extends DesktopScreen {
   @Override
   public void update(float delta) {
     RenderUtil.renderSprites(camera, background);
-    renderText();
+    RenderUtil.renderFonts(camera, //
+        new FontObject("Welcome to Drop.", 100, 150), //
+        new FontObject("Tap anywhere to begin...", 100, 100));
     pollInput();
   }
 
@@ -44,19 +45,6 @@ public class MainMenuScreen extends DesktopScreen {
       game.setScreen(new DropScreen(game));
       dispose();
     }
-  }
-
-  private void renderText() {
-    spriteBatch.setProjectionMatrix(camera.combined);
-    spriteBatch.begin();
-    bitmapFont.draw(spriteBatch, "Welcome to Drop.", 100, 150);
-    bitmapFont.draw(spriteBatch, "Tap anywhere to begin...", 100, 100);
-    spriteBatch.end();
-  }
-
-  @Override
-  public void resize(int width, int height) {
-    // Intentionally blank.
   }
 
   @Override

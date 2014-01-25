@@ -55,7 +55,9 @@ public abstract class DesktopScreen implements Screen {
   public abstract void update(float delta);
 
   @Override
-  public abstract void resize(int width, int height);
+  public void resize(int width, int height) {
+    // Don't force implementation.
+  }
 
   @Override
   public abstract void hide();

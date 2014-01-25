@@ -53,16 +53,12 @@ public class DropScreen extends DesktopScreen {
 
   public DropScreen(Game game) {
     super(game);
-
     dropImage = textureFactory.makeTexture("drop", TextureFileType.PNG);
-
     bucket = new Sprite2D("bucket", SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
         IMAGE_WIDTH, IMAGE_HEIGHT);
-
     dropSound = audioFactory.makeSound("drop", AudioFileType.WAV);
     rainMusic = audioFactory.makeMusic("rain", AudioFileType.MP3);
     rainMusic.setLooping(true);
-
     raindrops = new Array<Sprite2D>(Sprite2D.class);
     spawnRaindropIfNecessary();
   }
@@ -70,11 +66,6 @@ public class DropScreen extends DesktopScreen {
   @Override
   public void show() {
     rainMusic.play();
-  }
-
-  @Override
-  public void resize(int width, int height) {
-    // Intentionally blank...
   }
 
   @Override
@@ -88,7 +79,6 @@ public class DropScreen extends DesktopScreen {
   }
 
   private void pollInput() {
-    // Poll for mouse or keyboard input.
     if (Gdx.input.isTouched()) {
       Vector3 touchPos = new Vector3();
       touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
