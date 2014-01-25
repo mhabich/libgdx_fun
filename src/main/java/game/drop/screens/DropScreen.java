@@ -146,7 +146,7 @@ public class DropScreen extends DesktopScreen {
         iter.remove();
         totalDropsCaught += 1;
         totalDropsSpawned += 1;
-        if (totalDropsCaught > 3) {
+        if (totalDropsCaught > 15) {
           game.setScreen(new PlatformScreen(game));
           dispose();
         }

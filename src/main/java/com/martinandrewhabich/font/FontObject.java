@@ -28,8 +28,16 @@ public class FontObject {
     return x;
   }
 
+  public void setX(float X) {
+    this.x = x;
+  }
+
   public float getY() {
     return y;
+  }
+
+  public void setY(float y) {
+    this.y = y;
   }
 
 }

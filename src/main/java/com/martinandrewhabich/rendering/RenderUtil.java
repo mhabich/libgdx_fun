@@ -53,6 +53,9 @@ public class RenderUtil {
     spriteBatch.setProjectionMatrix(camera.combined);
     spriteBatch.begin();
     for (FontObject font : fontObjects) {
+      if (font == null) {
+        continue;
+      }
       bitmapFont.draw(spriteBatch, font.getText(), font.getX(), font.getY());
     }
     spriteBatch.end();
