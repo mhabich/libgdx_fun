@@ -3,14 +3,11 @@
  */
 package game.drop.screens;
 
-import static game.drop.Globs.BUCKET_KEYBOARD_SPEED;
-import static game.drop.Globs.BUCKET_Y_POS;
-import static game.drop.Globs.IMAGE_HEIGHT;
-import static game.drop.Globs.IMAGE_WIDTH;
+import static game.drop.Blobs.audioFactory;
+import static game.drop.Blobs.spriteBatch;
+import static game.drop.Blobs.textureFactory;
 import static game.drop.Globs.SCREEN_HEIGHT;
 import static game.drop.Globs.SCREEN_WIDTH;
-import game.drop.Blobs;
-import game.drop.Globs;
 
 import java.util.Iterator;
 
@@ -23,12 +20,12 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.martinandrewhabich.screen.DesktopScreen;
 import com.martinandrewhabich.sound.AudioFileType;
+import com.martinandrewhabich.sprite.Sprite2D;
 import com.martinandrewhabich.texture.TextureFileType;
 
 /**
@@ -38,50 +35,49 @@ import com.martinandrewhabich.texture.TextureFileType;
  */
 public class DropScreen extends DesktopScreen {
 
+  private static final int IMAGE_WIDTH = 64;
+  private static final int IMAGE_HEIGHT = 64;
+
+  private static final int BUCKET_Y_POS = 20;
+  private static final int BUCKET_KEYBOARD_SPEED = 350;
+
+  private static int RAINDROP_INTERVAL_NANOSECONDS = 1000000000;
+  private static int RAINDROP_SPEED = 200;
+
   private Texture menuBorderImage;
   private Texture dropImage;
   private Texture bucketImage;
   private Sound dropSound;
   private Music rainMusic;
 
-  OrthographicCamera camera;
+  private Sprite2D menuBorder;
+  private Sprite2D bucket;
+  Array<Sprite2D> raindrops;
 
-  Rectangle menuBorder;
-  Rectangle bucket;
-  Array<Rectangle> raindrops;
+  OrthographicCamera camera;
 
   long lastDropTime;
 
   public DropScreen(Game game) {
     super(game);
 
-    // Don't force image heights/widths to be a power of two (POT).
-    Texture.setEnforcePotImages(false);
+    menuBorderImage = textureFactory.makeTexture("menu_border", TextureFileType.PNG);
+    menuBorder = new Sprite2D(menuBorderImage, 0, SCREEN_HEIGHT - 208, 484, 208);
 
-    menuBorderImage = Blobs.textureFactory.makeTexture("menu_border", TextureFileType.PNG);
-    menuBorder = new Rectangle();
-    menuBorder.width = 434;
-    menuBorder.height = 208;
-    menuBorder.x = 0;
-    menuBorder.y = SCREEN_HEIGHT - menuBorder.height;
+    dropImage = textureFactory.makeTexture("drop", TextureFileType.PNG);
 
-    dropImage = Blobs.textureFactory.makeTexture("drop", TextureFileType.PNG);
-    bucketImage = Blobs.textureFactory.makeTexture("bucket", TextureFileType.PNG);
+    bucketImage = textureFactory.makeTexture("bucket", TextureFileType.PNG);
+    bucket = new Sprite2D(bucketImage, SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
+        IMAGE_WIDTH, IMAGE_HEIGHT);
 
-    dropSound = Blobs.audioFactory.makeSound("drop", AudioFileType.WAV);
-    rainMusic = Blobs.audioFactory.makeMusic("rain", AudioFileType.MP3);
+    dropSound = audioFactory.makeSound("drop", AudioFileType.WAV);
+    rainMusic = audioFactory.makeMusic("rain", AudioFileType.MP3);
     rainMusic.setLooping(true);
 
     camera = new OrthographicCamera();
     camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    bucket = new Rectangle();
-    bucket.x = SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F;
-    bucket.y = BUCKET_Y_POS;
-    bucket.width = IMAGE_WIDTH;
-    bucket.height = IMAGE_HEIGHT;
-
-    raindrops = new Array<Rectangle>();
+    raindrops = new Array<Sprite2D>(Sprite2D.class);
     spawnRaindrop();
   }
 
@@ -106,57 +102,59 @@ public class DropScreen extends DesktopScreen {
     // generally a good practice to update the camera once per frame.
     camera.update();
 
-    Blobs.spriteBatch.setProjectionMatrix(camera.combined);
-    Blobs.spriteBatch.begin();
-    Blobs.spriteBatch.draw(menuBorderImage, menuBorder.x, menuBorder.y);
-    Blobs.spriteBatch.draw(bucketImage, bucket.x, bucket.y);
-    for (Rectangle raindrop : raindrops) {
-      Blobs.spriteBatch.draw(dropImage, raindrop.x, raindrop.y);
-    }
-    Blobs.spriteBatch.end();
+    renderSprites(menuBorder, bucket);
+    renderSprites(raindrops.items);
 
+    // Poll for mouse or keyboard input.
     if (Gdx.input.isTouched()) {
       Vector3 touchPos = new Vector3();
       touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
       camera.unproject(touchPos);
-      bucket.x = touchPos.x - IMAGE_WIDTH / 2;
-    }
-
-    if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-      bucket.x -= BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime();
+      bucket.setX(touchPos.x - IMAGE_WIDTH / 2);
+    } else if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+      bucket.translate(-1 * BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime(), 0);
     } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      bucket.x += BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime();
+      bucket.translate(BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime(), 0);
     }
 
-    if (bucket.x < 0) {
-      bucket.x = 0;
-    } else if (bucket.x > getImageRightBound()) {
-      bucket.x = getImageRightBound();
+    // Keep the bucket inside the bounds of the screen.
+    if (bucket.getX() < 0) {
+      bucket.setX(0);
+    } else if (bucket.getX() > getImageRightBound()) {
+      bucket.setX(getImageRightBound());
     }
 
-    if (TimeUtils.nanoTime() - lastDropTime > Globs.RAINDROP_INTERVAL_NANOSECONDS) {
+    if (TimeUtils.nanoTime() - lastDropTime > RAINDROP_INTERVAL_NANOSECONDS) {
       spawnRaindrop();
     }
 
-    Iterator<Rectangle> iter = raindrops.iterator();
+    Iterator<Sprite2D> iter = raindrops.iterator();
     while (iter.hasNext()) {
-      Rectangle raindrop = iter.next();
-      raindrop.y -= Globs.RAINDROP_SPEED * Gdx.graphics.getDeltaTime();
-      if (raindrop.overlaps(bucket)) {
+      Sprite2D raindrop = iter.next();
+      raindrop.translate(0, -1 * RAINDROP_SPEED * Gdx.graphics.getDeltaTime());
+      if (raindrop.getRectangle().overlaps(bucket.getRectangle())) {
         dropSound.play();
         iter.remove();
-      } else if (raindrop.y + IMAGE_HEIGHT < 0) {
+      } else if (raindrop.getY() + IMAGE_HEIGHT < 0) {
         iter.remove();
       }
     }
   }
 
+  private void renderSprites(Sprite2D... sprites) {
+    spriteBatch.setProjectionMatrix(camera.combined);
+    spriteBatch.begin();
+    for (Sprite2D sprite : sprites) {
+      if (sprite != null) {
+        spriteBatch.draw(sprite.getTexture(), sprite.getX(), sprite.getY());
+      }
+    }
+    spriteBatch.end();
+  }
+
   private void spawnRaindrop() {
-    Rectangle raindrop = new Rectangle();
-    raindrop.x = MathUtils.random(0, getImageRightBound());
-    raindrop.y = SCREEN_HEIGHT;
-    raindrop.width = IMAGE_WIDTH;
-    raindrop.height = IMAGE_HEIGHT;
+    Sprite2D raindrop = new Sprite2D(dropImage, MathUtils.random(0, getImageRightBound()),
+        SCREEN_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT);
     raindrops.add(raindrop);
     lastDropTime = TimeUtils.nanoTime();
   }

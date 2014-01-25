@@ -15,6 +15,7 @@ import com.martinandrewhabich.file.FileType;
 public enum TextureFileType implements FileType {
 
   PNG("png");
+
   private String fileExtension;
 
   private TextureFileType(String fileExtension) {
@@ -24,6 +25,10 @@ public enum TextureFileType implements FileType {
   @Override
   public String getFileExtension() {
     return fileExtension;
+  }
+
+  public static TextureFileType getDefaultType() {
+    return PNG;
   }
 
 }
