@@ -10,9 +10,9 @@ package com.martinandrewhabich.font;
  */
 public class FontObject {
 
-  String text;
-  float x;
-  float y;
+  private String text;
+  private float x;
+  private float y;
 
   public FontObject(String text, float x, float y) {
     this.text = text;

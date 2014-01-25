@@ -3,7 +3,7 @@
  */
 package com.martinandrewhabich.sprite;
 
-import static game.drop.Blobs.textureFactory;
+import static com.martinandrewhabich.uglyglobals.Blobs.textureFactory;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;

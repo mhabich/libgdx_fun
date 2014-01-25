@@ -3,8 +3,8 @@
  */
 package com.martinandrewhabich.rendering;
 
-import static game.drop.Blobs.bitmapFont;
-import static game.drop.Blobs.spriteBatch;
+import static com.martinandrewhabich.uglyglobals.Blobs.bitmapFont;
+import static com.martinandrewhabich.uglyglobals.Blobs.spriteBatch;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.martinandrewhabich.font.FontObject;

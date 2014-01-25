@@ -1,7 +1,7 @@
 /**
  * Copyright (c) Martin Andrew Habich, 2014
  */
-package game.drop;
+package com.martinandrewhabich.uglyglobals;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

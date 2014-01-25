@@ -3,9 +3,6 @@
  */
 package com.martinandrewhabich.screen;
 
-import static game.drop.Globs.SCREEN_HEIGHT;
-import static game.drop.Globs.SCREEN_WIDTH;
-
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -15,7 +12,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 /**
  * DesktopScene.java
  * 
- * Overrides several Android-specific methods such that base classes need not.
+ * Provides some common functionality, such as camera and some default render() method logic (buffer
+ * clearing, camera updates, etc.).
+ * 
+ * ALso, overrides several Android-specific methods such that base classes need not.
  * 
  * @author Martin
  */
@@ -28,7 +28,8 @@ public abstract class DesktopScreen implements Screen {
   protected DesktopScreen(Game game) {
     this.game = game;
     camera = new OrthographicCamera();
-    camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
+    // i.e. screen's current width-and-height
+    camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
   }
 
   // Declare methods in the order I like them (i.e. so that Eclipse auto-generates the methods in

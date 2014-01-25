@@ -6,6 +6,7 @@ package game.drop;
 import game.drop.screens.MainMenuScreen;
 
 import com.badlogic.gdx.Game;
+import com.martinandrewhabich.uglyglobals.Blobs;
 
 /**
  * DropGame.java

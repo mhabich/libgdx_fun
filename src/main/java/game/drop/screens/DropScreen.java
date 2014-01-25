@@ -3,8 +3,8 @@
  */
 package game.drop.screens;
 
-import static game.drop.Blobs.audioFactory;
-import static game.drop.Blobs.textureFactory;
+import static com.martinandrewhabich.uglyglobals.Blobs.audioFactory;
+import static com.martinandrewhabich.uglyglobals.Blobs.textureFactory;
 import static game.drop.Globs.SCREEN_HEIGHT;
 import static game.drop.Globs.SCREEN_WIDTH;
 
@@ -33,19 +33,20 @@ import com.martinandrewhabich.texture.TextureFileType;
  */
 public class DropScreen extends DesktopScreen {
 
-  private static final int IMAGE_WIDTH = 64;
-  private static final int IMAGE_HEIGHT = 64;
+  private static final int DEFAULT_IMAGE_WIDTH = 64;
+  private static final int DEFAULT_IMAGE_HEIGHT = 64;
 
   private static final int BUCKET_Y_POS = 20;
   private static final int BUCKET_KEYBOARD_SPEED = 350;
 
-  private static int RAINDROP_INTERVAL_NANOSECONDS = 1000000000;
-  private static int RAINDROP_SPEED = 200;
+  private static final int RAINDROP_INTERVAL_NANOSECONDS = 1000000000;
+  private static final int RAINDROP_SPEED = 200;
 
   private Texture dropImage;
   private Sound dropSound;
   private Music rainMusic;
 
+  private Sprite2D background;
   private Sprite2D bucket;
   Array<Sprite2D> raindrops;
 
@@ -54,11 +55,12 @@ public class DropScreen extends DesktopScreen {
   public DropScreen(Game game) {
     super(game);
     dropImage = textureFactory.makeTexture("drop", TextureFileType.PNG);
-    bucket = new Sprite2D("bucket", SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
-        IMAGE_WIDTH, IMAGE_HEIGHT);
     dropSound = audioFactory.makeSound("drop", AudioFileType.WAV);
     rainMusic = audioFactory.makeMusic("rain", AudioFileType.MP3);
     rainMusic.setLooping(true);
+    background = new Sprite2D("splash_background", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    bucket = new Sprite2D("bucket", SCREEN_WIDTH * 0.5F - DEFAULT_IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
+        DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
     raindrops = new Array<Sprite2D>(Sprite2D.class);
     spawnRaindropIfNecessary();
   }
@@ -70,7 +72,7 @@ public class DropScreen extends DesktopScreen {
 
   @Override
   public void update(float delta) {
-    RenderUtil.renderSprites(camera, bucket);
+    RenderUtil.renderSprites(camera, background, bucket);
     RenderUtil.renderSprites(camera, raindrops.items);
     pollInput();
     makeSureBucketIsStillOnTheScreen();
@@ -83,7 +85,7 @@ public class DropScreen extends DesktopScreen {
       Vector3 touchPos = new Vector3();
       touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
       camera.unproject(touchPos);
-      bucket.setX(touchPos.x - IMAGE_WIDTH / 2);
+      bucket.setX(touchPos.x - DEFAULT_IMAGE_WIDTH / 2);
     } else if (Gdx.input.isKeyPressed(Keys.LEFT)) {
       bucket.translate(-1 * BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime(), 0);
     } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
@@ -103,7 +105,7 @@ public class DropScreen extends DesktopScreen {
   private void spawnRaindropIfNecessary() {
     if (TimeUtils.nanoTime() - lastDropTime > RAINDROP_INTERVAL_NANOSECONDS) {
       Sprite2D raindrop = new Sprite2D(dropImage, MathUtils.random(0, getImageRightBound()),
-          SCREEN_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT);
+          SCREEN_HEIGHT, DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
       raindrops.add(raindrop);
       lastDropTime = TimeUtils.nanoTime();
     }
@@ -117,7 +119,7 @@ public class DropScreen extends DesktopScreen {
       if (raindrop.getRectangle().overlaps(bucket.getRectangle())) {
         dropSound.play();
         iter.remove();
-      } else if (raindrop.getY() + IMAGE_HEIGHT < 0) {
+      } else if (raindrop.getY() + DEFAULT_IMAGE_HEIGHT < 0) {
         iter.remove();
       }
     }
@@ -128,7 +130,7 @@ public class DropScreen extends DesktopScreen {
    * projection matrix.
    */
   private static int getImageRightBound() {
-    return SCREEN_WIDTH - IMAGE_WIDTH;
+    return SCREEN_WIDTH - DEFAULT_IMAGE_WIDTH;
   }
 
   @Override
