@@ -7,6 +7,7 @@ import game.drop.Globs;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.martinandrewhabich.font.FontObject;
 import com.martinandrewhabich.rendering.RenderUtil;
 import com.martinandrewhabich.screen.DesktopScreen;
@@ -36,12 +37,12 @@ public class MainMenuScreen extends DesktopScreen {
     RenderUtil.renderSprites(camera, background);
     RenderUtil.renderFonts(camera, //
         new FontObject("Welcome to Drop.", 100, 150), //
-        new FontObject("Tap anywhere to begin...", 100, 100));
+        new FontObject("Click or press 'spacebar' to begin...", 100, 100));
     pollInput();
   }
 
   private void pollInput() {
-    if (Gdx.input.isTouched()) {
+    if (Gdx.input.isTouched() || Gdx.input.isKeyPressed(Keys.SPACE)) {
       game.setScreen(new DropScreen(game));
       dispose();
     }
