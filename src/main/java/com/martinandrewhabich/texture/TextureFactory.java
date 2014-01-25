@@ -3,8 +3,9 @@
  */
 package com.martinandrewhabich.texture;
 
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.Disposable;
 import com.martinandrewhabich.file.FileUtil;
 
 /**
@@ -14,11 +15,25 @@ import com.martinandrewhabich.file.FileUtil;
  * 
  * @author Martin
  */
-public class TextureFactory {
+public class TextureFactory implements Disposable {
+
+  private static AssetManager assetManager = new AssetManager();
 
   public Texture makeTexture(String fileName, TextureFileType textureFileType) {
-    FileHandle fileHandle = FileUtil.getFileHandle(fileName, textureFileType);
-    return new Texture(fileHandle);
+    String fileNamePlusExtension = FileUtil.getFileNamePlusExtension(fileName, textureFileType);
+    if (!assetManager.isLoaded(fileNamePlusExtension)) {
+      assetManager.load(fileNamePlusExtension, Texture.class);
+      while (!assetManager.update()) {
+        // Still loading.
+      }
+    }
+    return assetManager.get(fileNamePlusExtension);
+  }
+
+  @Override
+  public void dispose() {
+    // Dispose of all textures without disposing of the AssetManager itself.
+    assetManager.clear();
   }
 
 }

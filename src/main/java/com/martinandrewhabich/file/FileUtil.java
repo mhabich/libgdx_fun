@@ -13,7 +13,7 @@ import com.badlogic.gdx.files.FileHandle;
  */
 public class FileUtil {
 
-  private static String getFileNamePlusExtension(String fileName, FileType fileType) {
+  public static String getFileNamePlusExtension(String fileName, FileType fileType) {
     return fileName + "." + fileType.getFileExtension();
   }
 

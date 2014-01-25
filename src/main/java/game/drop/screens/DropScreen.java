@@ -148,11 +148,8 @@ public class DropScreen extends DesktopScreen {
 
   @Override
   public void dispose() {
-    // TODO - move this to a resource manager at some point (i.e. libgdx's AssetManager class)
-    rainDropImage.dispose();
-    dropCaughtSound.dispose();
-    rainBackgroundMusic.dispose();
-    bucket.getTexture().dispose();
+    // Since we're using an AssetManager, this will dispose all of our textures.
+    textureFactory.dispose();
   }
 
   @Override
