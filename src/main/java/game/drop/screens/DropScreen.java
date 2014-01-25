@@ -29,7 +29,7 @@ import com.martinandrewhabich.sprite.Sprite2D;
 import com.martinandrewhabich.texture.TextureFileType;
 
 /**
- * BucketScene.java
+ * DropScene.java
  * 
  * @author Martin
  */
@@ -44,13 +44,10 @@ public class DropScreen extends DesktopScreen {
   private static int RAINDROP_INTERVAL_NANOSECONDS = 1000000000;
   private static int RAINDROP_SPEED = 200;
 
-  private Texture menuBorderImage;
   private Texture dropImage;
-  private Texture bucketImage;
   private Sound dropSound;
   private Music rainMusic;
 
-  private Sprite2D menuBorder;
   private Sprite2D bucket;
   Array<Sprite2D> raindrops;
 
@@ -61,13 +58,9 @@ public class DropScreen extends DesktopScreen {
   public DropScreen(Game game) {
     super(game);
 
-    menuBorderImage = textureFactory.makeTexture("menu_border", TextureFileType.PNG);
-    menuBorder = new Sprite2D(menuBorderImage, 0, SCREEN_HEIGHT - 208, 484, 208);
-
     dropImage = textureFactory.makeTexture("drop", TextureFileType.PNG);
 
-    bucketImage = textureFactory.makeTexture("bucket", TextureFileType.PNG);
-    bucket = new Sprite2D(bucketImage, SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
+    bucket = new Sprite2D("bucket", SCREEN_WIDTH * 0.5F - IMAGE_WIDTH * 0.5F, BUCKET_Y_POS,
         IMAGE_WIDTH, IMAGE_HEIGHT);
 
     dropSound = audioFactory.makeSound("drop", AudioFileType.WAV);
@@ -78,7 +71,7 @@ public class DropScreen extends DesktopScreen {
     camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     raindrops = new Array<Sprite2D>(Sprite2D.class);
-    spawnRaindrop();
+    spawnRaindropIfNecessary();
   }
 
   @Override
@@ -93,52 +86,23 @@ public class DropScreen extends DesktopScreen {
 
   @Override
   public void render(float delta) {
-    Gdx.gl.glClearColor(0, 0.1F, 0.2F, 1);
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
+    clearBuffer();
     // Cameras use a mathematical entity called matrix that is responsible for setting up the
     // coordinate system for rendering. These matrices need to be recomputed every time we change a
     // property of the camera, like its position. We don't do this in our simple example, but it is
     // generally a good practice to update the camera once per frame.
     camera.update();
-
-    renderSprites(menuBorder, bucket);
+    renderSprites(bucket);
     renderSprites(raindrops.items);
+    pollInput();
+    makeSureBucketIsStillOnTheScreen();
+    updateRaindropPositions();
+    spawnRaindropIfNecessary();
+  }
 
-    // Poll for mouse or keyboard input.
-    if (Gdx.input.isTouched()) {
-      Vector3 touchPos = new Vector3();
-      touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-      camera.unproject(touchPos);
-      bucket.setX(touchPos.x - IMAGE_WIDTH / 2);
-    } else if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-      bucket.translate(-1 * BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime(), 0);
-    } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      bucket.translate(BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime(), 0);
-    }
-
-    // Keep the bucket inside the bounds of the screen.
-    if (bucket.getX() < 0) {
-      bucket.setX(0);
-    } else if (bucket.getX() > getImageRightBound()) {
-      bucket.setX(getImageRightBound());
-    }
-
-    if (TimeUtils.nanoTime() - lastDropTime > RAINDROP_INTERVAL_NANOSECONDS) {
-      spawnRaindrop();
-    }
-
-    Iterator<Sprite2D> iter = raindrops.iterator();
-    while (iter.hasNext()) {
-      Sprite2D raindrop = iter.next();
-      raindrop.translate(0, -1 * RAINDROP_SPEED * Gdx.graphics.getDeltaTime());
-      if (raindrop.getRectangle().overlaps(bucket.getRectangle())) {
-        dropSound.play();
-        iter.remove();
-      } else if (raindrop.getY() + IMAGE_HEIGHT < 0) {
-        iter.remove();
-      }
-    }
+  private void clearBuffer() {
+    Gdx.gl.glClearColor(0, 0.1F, 0.2F, 1);
+    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
   }
 
   private void renderSprites(Sprite2D... sprites) {
@@ -152,11 +116,50 @@ public class DropScreen extends DesktopScreen {
     spriteBatch.end();
   }
 
-  private void spawnRaindrop() {
-    Sprite2D raindrop = new Sprite2D(dropImage, MathUtils.random(0, getImageRightBound()),
-        SCREEN_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT);
-    raindrops.add(raindrop);
-    lastDropTime = TimeUtils.nanoTime();
+  private void pollInput() {
+    // Poll for mouse or keyboard input.
+    if (Gdx.input.isTouched()) {
+      Vector3 touchPos = new Vector3();
+      touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+      camera.unproject(touchPos);
+      bucket.setX(touchPos.x - IMAGE_WIDTH / 2);
+    } else if (Gdx.input.isKeyPressed(Keys.LEFT)) {
+      bucket.translate(-1 * BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime(), 0);
+    } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+      bucket.translate(BUCKET_KEYBOARD_SPEED * Gdx.graphics.getDeltaTime(), 0);
+    }
+  }
+
+  private void makeSureBucketIsStillOnTheScreen() {
+    // Keep the bucket inside the bounds of the screen.
+    if (bucket.getX() < 0) {
+      bucket.setX(0);
+    } else if (bucket.getX() > getImageRightBound()) {
+      bucket.setX(getImageRightBound());
+    }
+  }
+
+  private void spawnRaindropIfNecessary() {
+    if (TimeUtils.nanoTime() - lastDropTime > RAINDROP_INTERVAL_NANOSECONDS) {
+      Sprite2D raindrop = new Sprite2D(dropImage, MathUtils.random(0, getImageRightBound()),
+          SCREEN_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT);
+      raindrops.add(raindrop);
+      lastDropTime = TimeUtils.nanoTime();
+    }
+  }
+
+  private void updateRaindropPositions() {
+    Iterator<Sprite2D> iter = raindrops.iterator();
+    while (iter.hasNext()) {
+      Sprite2D raindrop = iter.next();
+      raindrop.translate(0, -1 * RAINDROP_SPEED * Gdx.graphics.getDeltaTime());
+      if (raindrop.getRectangle().overlaps(bucket.getRectangle())) {
+        dropSound.play();
+        iter.remove();
+      } else if (raindrop.getY() + IMAGE_HEIGHT < 0) {
+        iter.remove();
+      }
+    }
   }
 
   /**
@@ -169,9 +172,8 @@ public class DropScreen extends DesktopScreen {
 
   @Override
   public void dispose() {
-    menuBorderImage.dispose();
+    // TODO - move this to a resource manager at some point
     dropImage.dispose();
-    bucketImage.dispose();
     dropSound.dispose();
     rainMusic.dispose();
   }

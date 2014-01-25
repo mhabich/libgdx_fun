@@ -3,8 +3,11 @@
  */
 package com.martinandrewhabich.sprite;
 
+import static game.drop.Blobs.textureFactory;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
+import com.martinandrewhabich.texture.TextureFileType;
 
 /**
  * Sprite2D.java
@@ -18,6 +21,11 @@ public class Sprite2D {
 
   private Texture texture;
   private Rectangle rectangle;
+
+  public Sprite2D(String textureName, float x, float y, float width, float height) {
+    this(textureFactory.makeTexture(textureName, TextureFileType.getDefaultType()), x, y, width,
+        height);
+  }
 
   public Sprite2D(Texture texture, float x, float y, float width, float height) {
     this.texture = texture;

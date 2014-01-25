@@ -48,8 +48,8 @@ public class MainMenuScreen extends DesktopScreen {
 
     spriteBatch.begin();
     spriteBatch.draw(backgroundImage, 0, 0);
-    bitmapFont.draw(spriteBatch, "Welcome to Drop!!! ", 100, 150);
-    bitmapFont.draw(spriteBatch, "Tap anywhere to begin!", 100, 100);
+    bitmapFont.draw(spriteBatch, "Welcome to Drop.", 100, 150);
+    bitmapFont.draw(spriteBatch, "Tap anywhere to begin...", 100, 100);
     spriteBatch.end();
 
     if (Gdx.input.isTouched()) {
