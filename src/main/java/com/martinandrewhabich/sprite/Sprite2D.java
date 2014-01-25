@@ -48,6 +48,14 @@ public class Sprite2D {
     rectangle.y = y;
   }
 
+  public float getWidth() {
+    return rectangle.width;
+  }
+
+  public float getHeight() {
+    return rectangle.height;
+  }
+
   public void translate(float xTrans, float yTrans) {
     rectangle.x += xTrans;
     rectangle.y += yTrans;

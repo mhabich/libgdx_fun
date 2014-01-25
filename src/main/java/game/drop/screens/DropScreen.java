@@ -4,7 +4,6 @@
 package game.drop.screens;
 
 import static game.drop.Blobs.audioFactory;
-import static game.drop.Blobs.spriteBatch;
 import static game.drop.Blobs.textureFactory;
 import static game.drop.Globs.SCREEN_HEIGHT;
 import static game.drop.Globs.SCREEN_WIDTH;
@@ -16,13 +15,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.martinandrewhabich.rendering.RenderUtil;
 import com.martinandrewhabich.screen.DesktopScreen;
 import com.martinandrewhabich.sound.AudioFileType;
 import com.martinandrewhabich.sprite.Sprite2D;
@@ -51,8 +49,6 @@ public class DropScreen extends DesktopScreen {
   private Sprite2D bucket;
   Array<Sprite2D> raindrops;
 
-  OrthographicCamera camera;
-
   long lastDropTime;
 
   public DropScreen(Game game) {
@@ -66,9 +62,6 @@ public class DropScreen extends DesktopScreen {
     dropSound = audioFactory.makeSound("drop", AudioFileType.WAV);
     rainMusic = audioFactory.makeMusic("rain", AudioFileType.MP3);
     rainMusic.setLooping(true);
-
-    camera = new OrthographicCamera();
-    camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     raindrops = new Array<Sprite2D>(Sprite2D.class);
     spawnRaindropIfNecessary();
@@ -85,35 +78,13 @@ public class DropScreen extends DesktopScreen {
   }
 
   @Override
-  public void render(float delta) {
-    clearBuffer();
-    // Cameras use a mathematical entity called matrix that is responsible for setting up the
-    // coordinate system for rendering. These matrices need to be recomputed every time we change a
-    // property of the camera, like its position. We don't do this in our simple example, but it is
-    // generally a good practice to update the camera once per frame.
-    camera.update();
-    renderSprites(bucket);
-    renderSprites(raindrops.items);
+  public void update(float delta) {
+    RenderUtil.renderSprites(camera, bucket);
+    RenderUtil.renderSprites(camera, raindrops.items);
     pollInput();
     makeSureBucketIsStillOnTheScreen();
     updateRaindropPositions();
     spawnRaindropIfNecessary();
-  }
-
-  private void clearBuffer() {
-    Gdx.gl.glClearColor(0, 0.1F, 0.2F, 1);
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-  }
-
-  private void renderSprites(Sprite2D... sprites) {
-    spriteBatch.setProjectionMatrix(camera.combined);
-    spriteBatch.begin();
-    for (Sprite2D sprite : sprites) {
-      if (sprite != null) {
-        spriteBatch.draw(sprite.getTexture(), sprite.getX(), sprite.getY());
-      }
-    }
-    spriteBatch.end();
   }
 
   private void pollInput() {

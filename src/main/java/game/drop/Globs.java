@@ -13,8 +13,8 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 public class Globs {
 
   public static final String SCREEN_TITLE = "Drop";
-  public static final int SCREEN_WIDTH = 800;
-  public static final int SCREEN_HEIGHT = 480;
+  public static final int SCREEN_WIDTH = 1024;
+  public static final int SCREEN_HEIGHT = 800;
 
   public static LwjglApplicationConfiguration LWJGL_APP_CONFIG = getLwjglAppConfig();
 

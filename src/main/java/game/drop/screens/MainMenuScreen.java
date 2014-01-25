@@ -5,16 +5,13 @@ package game.drop.screens;
 
 import static game.drop.Blobs.bitmapFont;
 import static game.drop.Blobs.spriteBatch;
-import game.drop.Blobs;
 import game.drop.Globs;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.martinandrewhabich.rendering.RenderUtil;
 import com.martinandrewhabich.screen.DesktopScreen;
-import com.martinandrewhabich.texture.TextureFileType;
+import com.martinandrewhabich.sprite.Sprite2D;
 
 /**
  * MainMenuScreen.java
@@ -23,14 +20,11 @@ import com.martinandrewhabich.texture.TextureFileType;
  */
 public class MainMenuScreen extends DesktopScreen {
 
-  Texture backgroundImage;
-  OrthographicCamera camera;
+  Sprite2D background;
 
   public MainMenuScreen(Game game) {
     super(game);
-    backgroundImage = Blobs.textureFactory.makeTexture("splash_background", TextureFileType.PNG);
-    camera = new OrthographicCamera();
-    camera.setToOrtho(false, Globs.SCREEN_WIDTH, Globs.SCREEN_HEIGHT);
+    background = new Sprite2D("splash_background", 0, 0, Globs.SCREEN_WIDTH, Globs.SCREEN_HEIGHT);
   }
 
   @Override
@@ -39,23 +33,25 @@ public class MainMenuScreen extends DesktopScreen {
   }
 
   @Override
-  public void render(float delta) {
-    Gdx.gl.glClearColor(0, 0.1F, 0.2F, 1);
-    Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+  public void update(float delta) {
+    RenderUtil.renderSprites(camera, background);
+    renderText();
+    pollInput();
+  }
 
-    camera.update();
-    spriteBatch.setProjectionMatrix(camera.combined);
-
-    spriteBatch.begin();
-    spriteBatch.draw(backgroundImage, 0, 0);
-    bitmapFont.draw(spriteBatch, "Welcome to Drop.", 100, 150);
-    bitmapFont.draw(spriteBatch, "Tap anywhere to begin...", 100, 100);
-    spriteBatch.end();
-
+  private void pollInput() {
     if (Gdx.input.isTouched()) {
       game.setScreen(new DropScreen(game));
       dispose();
     }
+  }
+
+  private void renderText() {
+    spriteBatch.setProjectionMatrix(camera.combined);
+    spriteBatch.begin();
+    bitmapFont.draw(spriteBatch, "Welcome to Drop.", 100, 150);
+    bitmapFont.draw(spriteBatch, "Tap anywhere to begin...", 100, 100);
+    spriteBatch.end();
   }
 
   @Override
