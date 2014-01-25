@@ -38,6 +38,7 @@ import com.martinandrewhabich.texture.TextureFileType;
  */
 public class DropScreen extends DesktopScreen {
 
+  private Texture menuBorderImage;
   private Texture dropImage;
   private Texture bucketImage;
   private Sound dropSound;
@@ -45,6 +46,7 @@ public class DropScreen extends DesktopScreen {
 
   OrthographicCamera camera;
 
+  Rectangle menuBorder;
   Rectangle bucket;
   Array<Rectangle> raindrops;
 
@@ -52,6 +54,17 @@ public class DropScreen extends DesktopScreen {
 
   public DropScreen(Game game) {
     super(game);
+
+    // Don't force image heights/widths to be a power of two (POT).
+    Texture.setEnforcePotImages(false);
+
+    menuBorderImage = Blobs.textureFactory.makeTexture("menu_border", TextureFileType.PNG);
+    menuBorder = new Rectangle();
+    menuBorder.width = 434;
+    menuBorder.height = 208;
+    menuBorder.x = 0;
+    menuBorder.y = SCREEN_HEIGHT - menuBorder.height;
+
     dropImage = Blobs.textureFactory.makeTexture("drop", TextureFileType.PNG);
     bucketImage = Blobs.textureFactory.makeTexture("bucket", TextureFileType.PNG);
 
@@ -95,6 +108,7 @@ public class DropScreen extends DesktopScreen {
 
     Blobs.spriteBatch.setProjectionMatrix(camera.combined);
     Blobs.spriteBatch.begin();
+    Blobs.spriteBatch.draw(menuBorderImage, menuBorder.x, menuBorder.y);
     Blobs.spriteBatch.draw(bucketImage, bucket.x, bucket.y);
     for (Rectangle raindrop : raindrops) {
       Blobs.spriteBatch.draw(dropImage, raindrop.x, raindrop.y);
@@ -157,6 +171,7 @@ public class DropScreen extends DesktopScreen {
 
   @Override
   public void dispose() {
+    menuBorderImage.dispose();
     dropImage.dispose();
     bucketImage.dispose();
     dropSound.dispose();
