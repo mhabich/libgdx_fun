@@ -20,15 +20,33 @@ public class RenderUtil {
   public static void renderSprites(Camera camera, Sprite2D... sprites) {
     spriteBatch.setProjectionMatrix(camera.combined);
     spriteBatch.begin();
+
     for (Sprite2D sprite : sprites) {
-      if (sprite != null) {
-        spriteBatch.draw( //
-            sprite.getTexture(), //
-            sprite.getX(), sprite.getY(), //
-            sprite.getWidth(), sprite.getHeight());
+      if (sprite == null) {
+        continue;
+      }
+      if (sprite.getTexture() != null) {
+        renderTexture(sprite);
+      } else {
+        renderTextureRegion(sprite);
       }
     }
+
     spriteBatch.end();
+  }
+
+  private static void renderTexture(Sprite2D sprite) {
+    spriteBatch.draw( //
+        sprite.getTexture(), //
+        sprite.getX(), sprite.getY(), //
+        sprite.getWidth(), sprite.getHeight());
+  }
+
+  private static void renderTextureRegion(Sprite2D sprite) {
+    spriteBatch.draw( //
+        sprite.getTextureRegion(), //
+        sprite.getX(), sprite.getY(), //
+        sprite.getWidth(), sprite.getHeight());
   }
 
   public static void renderFonts(Camera camera, FontObject... fontObjects) {
