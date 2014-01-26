@@ -19,10 +19,10 @@ public class Globs {
   public static final int DEFAULT_IMAGE_WIDTH = 64;
   public static final int DEFAULT_IMAGE_HEIGHT = 64;
 
-  public static final int NUMBER_OF_DROPS_TO_WIN = 0;
-  public static final int CREDIT_SPEED = 50;
+  public static final int NUMBER_OF_DROPS_TO_WIN = 1;
+  public static final float CREDIT_SPEED = 0.5F;
 
-  public static final int MAX_PLAYER_VELOCITY = 300;
+  public static final float SCALE = 1 / 80F;
 
   public static LwjglApplicationConfiguration LWJGL_APP_CONFIG = getLwjglAppConfig();
 

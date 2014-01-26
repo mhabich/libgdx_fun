@@ -40,11 +40,9 @@ public class RectangularPhysicsBody {
     // Create a fixture definition to apply our shape to.
     FixtureDef fixtureDef = new FixtureDef();
     fixtureDef.shape = rectangle;
-    fixtureDef.friction = 0.5F;
-    if (bodyType == BodyType.DynamicBody) {
-      fixtureDef.density = 0.001F;
-      fixtureDef.restitution = 0.2F;
-    }
+    fixtureDef.friction = 1F;
+    // fixtureDef.density = 0.000000001F;
+    // fixtureDef.restitution = 0F;
 
     body.createFixture(fixtureDef);
 

@@ -4,6 +4,7 @@
 package game.drop.screens;
 
 import static com.martinandrewhabich.uglyglobals.Blobs.textureFactory;
+import static game.drop.Globs.SCALE;
 import static game.drop.Globs.SCREEN_HEIGHT;
 import static game.drop.Globs.SCREEN_WIDTH;
 import game.drop.Globs;
@@ -37,8 +38,9 @@ import com.martinandrewhabich.uglyglobals.Blobs;
  */
 public class PlatformScreen extends DesktopScreen {
 
-  Sprite2D background = new Sprite2D("splash_background", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-  Sprite2D floor = new Sprite2D("platform/floor", 0, 0, SCREEN_WIDTH, 20);
+  Sprite2D background = new Sprite2D("splash_background", 0, 0, SCREEN_WIDTH * SCALE, SCREEN_HEIGHT
+      * SCALE);
+  Sprite2D floor = new Sprite2D("platform/floor", 0, 0, SCREEN_WIDTH * SCALE, 20);
   Sprite2D platform1 = new Sprite2D("platform/floor", 100, 150, 100, 20);
   Sprite2D platform2 = new Sprite2D("platform/floor", 400, 300, 100, 20);
   Animation2D player;
@@ -46,7 +48,7 @@ public class PlatformScreen extends DesktopScreen {
 
   ArrayList<FontObject> credits = new ArrayList<FontObject>();
 
-  World world = new World(new Vector2(0, -50), true);
+  World world = new World(new Vector2(0F, -5F), true);
   Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
 
   RectangularPhysicsBody floorBody;
@@ -56,14 +58,17 @@ public class PlatformScreen extends DesktopScreen {
 
   protected PlatformScreen(Game game) {
     super(game);
+    camera.setToOrtho(false, //
+        Gdx.graphics.getWidth() * SCALE, //
+        Gdx.graphics.getHeight() * SCALE);
     Texture playerImage = Blobs.textureFactory.makeTexture("platform/player", TextureFileType.PNG);
     player = new Animation2D( //
         AnimationFactory.makeAnimation(playerImage, 4, 1, 1 / 5F), //
-        400, 20, 64, 128);
-    int yPos = -100;
-    int leftColumn = 250;
-    int rightColumn = 415;
-    int gapSize = 45;
+        400 * SCALE, 20 * SCALE, 64 * SCALE, 128 * SCALE);
+    float yPos = -100 * SCALE;
+    float leftColumn = 250 * SCALE;
+    float rightColumn = 415 * SCALE;
+    float gapSize = 45 * SCALE;
     credits.add(new FontObject("CREDITS", leftColumn, yPos));
     yPos -= gapSize;
     credits.add(new FontObject("Produced By:", leftColumn, yPos));
@@ -88,16 +93,19 @@ public class PlatformScreen extends DesktopScreen {
   }
 
   private void buildBodies() {
-    floorBody = new RectangularPhysicsBody(world, SCREEN_WIDTH / 2F, 10F, SCREEN_WIDTH, 20F,
-        BodyType.StaticBody);
-    platform1Body = new RectangularPhysicsBody(world, 150F, 110F, 100F, 20F, BodyType.StaticBody);
-    platform2Body = new RectangularPhysicsBody(world, 450F, 290F, 100F, 20F, BodyType.StaticBody);
-    playerBody = new RectangularPhysicsBody(world, 300F, 290F, 64F, 128F, BodyType.DynamicBody);
+    floorBody = new RectangularPhysicsBody(world, SCREEN_WIDTH / 2F * SCALE, 10F * SCALE,
+        SCREEN_WIDTH * SCALE, 20F * SCALE, BodyType.StaticBody);
+    platform1Body = new RectangularPhysicsBody(world, 150F * SCALE, 110F * SCALE, 100F * SCALE,
+        20F * SCALE, BodyType.StaticBody);
+    platform2Body = new RectangularPhysicsBody(world, 450F * SCALE, 290F * SCALE, 100F * SCALE,
+        20F * SCALE, BodyType.StaticBody);
+    playerBody = new RectangularPhysicsBody(world, 300F * SCALE, 290F * SCALE, 64F * SCALE,
+        128F * SCALE, BodyType.DynamicBody);
     playerBody.body.setFixedRotation(true);
-    playerBody.body.setLinearVelocity(100F, 30F);
+    playerBody.body.setLinearVelocity(2F, 5F);
 
     floor = new Sprite2D("platform/floor", floorBody.getXLeft(), floorBody.getYBottom(),
-        SCREEN_WIDTH, 20);
+        SCREEN_WIDTH * SCALE, 20 * SCALE);
     platform1 = new Sprite2D("platform/floor", platform1Body.getXLeft(),
         platform1Body.getYBottom(), platform1Body.getWidth(), platform1Body.getHeight());
     platform2 = new Sprite2D("platform/floor", platform2Body.getXLeft(),
@@ -118,7 +126,7 @@ public class PlatformScreen extends DesktopScreen {
     RenderUtil.renderSprites(camera, background, floor, platform1, platform2);
     for (int index = credits.size() - 1; index >= 0; index--) {
       credits.get(index).setY(credits.get(index).getY() + Globs.CREDIT_SPEED * delta);
-      if (credits.get(index).getY() > SCREEN_HEIGHT + 50) {
+      if (credits.get(index).getY() > SCALE * (SCREEN_HEIGHT + 50)) {
         credits.remove(index);
       }
     }
@@ -136,20 +144,20 @@ public class PlatformScreen extends DesktopScreen {
   private void pollInput() {
 
     Vector2 vel = playerBody.body.getLinearVelocity();
-
-    // Apply left impulse, but only if max velocity is not reached yet.
-    if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-      playerBody.body.applyForceToCenter(-10000F, 0F, true);
+    float MAX_PLAYER_VELOCITY = 2F;
+    if (vel.x > -MAX_PLAYER_VELOCITY && //
+        (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT))) {
+      playerBody.body.applyForceToCenter(-10F, 0F, true);
     }
 
-    // Apply right impulse, but only if max velocity is not reached yet.
-    if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      playerBody.body.applyForceToCenter(10000F, 0F, true);
+    if (vel.x < MAX_PLAYER_VELOCITY && //
+        (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT))) {
+      playerBody.body.applyForceToCenter(10F, 0F, true);
     }
 
     // Jump! Apply upward impulse if not already moving.
-    if (Gdx.input.isKeyPressed(Keys.SPACE) && Math.abs(vel.y) < 2) {
-      playerBody.body.applyForceToCenter(0F, 10000000000F, true);
+    if (Gdx.input.isKeyPressed(Keys.SPACE) && Math.abs(vel.y) < 0.1F) {
+      playerBody.body.setLinearVelocity(vel.x, 5F);
     }
   }
 

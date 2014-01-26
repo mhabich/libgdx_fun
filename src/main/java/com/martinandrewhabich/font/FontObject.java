@@ -28,7 +28,7 @@ public class FontObject {
     return x;
   }
 
-  public void setX(float X) {
+  public void setX(float x) {
     this.x = x;
   }
 
