@@ -94,13 +94,13 @@ public class PlatformScreen extends DesktopScreen {
 
   private void buildBodies() {
     floorBody = new RectangularPhysicsBody(world, SCREEN_WIDTH / 2F * SCALE, 10F * SCALE,
-        SCREEN_WIDTH * SCALE, 20F * SCALE, BodyType.StaticBody);
+        SCREEN_WIDTH * SCALE, 20F * SCALE, BodyType.StaticBody, true);
     platform1Body = new RectangularPhysicsBody(world, 150F * SCALE, 110F * SCALE, 100F * SCALE,
-        20F * SCALE, BodyType.StaticBody);
+        20F * SCALE, BodyType.StaticBody, true);
     platform2Body = new RectangularPhysicsBody(world, 450F * SCALE, 290F * SCALE, 100F * SCALE,
-        20F * SCALE, BodyType.StaticBody);
+        20F * SCALE, BodyType.StaticBody, true);
     playerBody = new RectangularPhysicsBody(world, 300F * SCALE, 290F * SCALE, 64F * SCALE,
-        128F * SCALE, BodyType.DynamicBody);
+        128F * SCALE, BodyType.DynamicBody, false);
     playerBody.body.setFixedRotation(true);
     playerBody.body.setLinearVelocity(2F, 5F);
 
@@ -145,20 +145,28 @@ public class PlatformScreen extends DesktopScreen {
 
     Vector2 vel = playerBody.body.getLinearVelocity();
     float MAX_PLAYER_VELOCITY = 2F;
-    if (vel.x > -MAX_PLAYER_VELOCITY && //
-        (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT))) {
-      playerBody.body.applyForceToCenter(-10F, 0F, true);
-    }
+    boolean isPressingLeftMovementKey = Gdx.input.isKeyPressed(Keys.A)
+        || Gdx.input.isKeyPressed(Keys.LEFT);
+    boolean isPressingRightMovementKey = Gdx.input.isKeyPressed(Keys.D)
+        || Gdx.input.isKeyPressed(Keys.RIGHT);
 
-    if (vel.x < MAX_PLAYER_VELOCITY && //
-        (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT))) {
+    if (vel.x > -MAX_PLAYER_VELOCITY && isPressingLeftMovementKey) {
+      // Move left
+      playerBody.body.applyForceToCenter(-10F, 0F, true);
+    } else if (vel.x < MAX_PLAYER_VELOCITY && isPressingRightMovementKey) {
+      // Move right
       playerBody.body.applyForceToCenter(10F, 0F, true);
+    } else if (!isPressingLeftMovementKey && !isPressingRightMovementKey) {
+      // Damp horizontal motion - necessary because we set the player's friction to zero.
+      // We set the player's friction to zero to prevent them from "sticking" to walls.
+      playerBody.body.setLinearVelocity(0.9F * vel.x, vel.y);
     }
 
     // Jump! Apply upward impulse if not already moving.
     if (Gdx.input.isKeyPressed(Keys.SPACE) && Math.abs(vel.y) < 0.1F) {
       playerBody.body.setLinearVelocity(vel.x, 5F);
     }
+
   }
 
   @Override

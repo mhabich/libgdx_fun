@@ -22,7 +22,7 @@ public class RectangularPhysicsBody {
   private float height;
 
   public RectangularPhysicsBody(World world, float xPosCenter, float yPosCenter, float width,
-      float height, BodyType bodyType) {
+      float height, BodyType bodyType, boolean hasFriction) {
 
     this.width = width;
     this.height = height;
@@ -40,7 +40,7 @@ public class RectangularPhysicsBody {
     // Create a fixture definition to apply our shape to.
     FixtureDef fixtureDef = new FixtureDef();
     fixtureDef.shape = rectangle;
-    fixtureDef.friction = 1F;
+    fixtureDef.friction = hasFriction ? 1F : 0F;
     // fixtureDef.density = 0.000000001F;
     // fixtureDef.restitution = 0F;
 
